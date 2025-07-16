@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 
 export default function HomePage() {
@@ -12,6 +13,7 @@ export default function HomePage() {
           <Link href="/upload">Upload a File</Link>
         </li>
       </ul>
+
     </div>
   );
 }
