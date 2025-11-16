@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import path from 'path';
 
+// Force Node.js runtime for this API route
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
