@@ -1,0 +1,5 @@
+# Ignore Python files - this is a Next.js project
+*.py
+__pycache__
+*.pyc
+.python-version
