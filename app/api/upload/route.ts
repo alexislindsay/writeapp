@@ -12,16 +12,34 @@ export async function POST(request: Request) {
     const title = formData.get('title') as string | null;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'No file provided' },
+        {
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        }
+      );
     }
 
     const ext = path.extname(file.name).toLowerCase();
     const allowedTypes = ['.txt', '.md', '.docx', '.pdf'];
 
     if (!allowedTypes.includes(ext)) {
-      return NextResponse.json({
-        error: `Invalid file type. Please upload one of: ${allowedTypes.join(', ')}`
-      }, { status: 400 });
+      return NextResponse.json(
+        { error: `Invalid file type. Please upload one of: ${allowedTypes.join(', ')}` },
+        {
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        }
+      );
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -53,9 +71,9 @@ export async function POST(request: Request) {
             // Convert images to base64 data URLs
             const imageBuffer = await image.read();
             const base64 = imageBuffer.toString('base64');
-            const contentType = image.contentType || 'image/png';
+            const imageContentType = image.contentType || 'image/png';
             return {
-              src: `data:${contentType};base64,${base64}`
+              src: `data:${imageContentType};base64,${base64}`
             };
           })
         }
@@ -69,25 +87,64 @@ export async function POST(request: Request) {
     }
 
     if (!contentHtml || contentHtml.trim().length === 0) {
-      return NextResponse.json({
-        error: 'Could not process document'
-      }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Could not process document' },
+        {
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        }
+      );
     }
 
     // Return the converted content
-    return NextResponse.json({
-      success: true,
-      title: title || file.name.replace(/\.[^/.]+$/, ''),
-      content: contentHtml,
-      contentType,
-      filename: file.name
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        title: title || file.name.replace(/\.[^/.]+$/, ''),
+        content: contentHtml,
+        contentType,
+        filename: file.name
+      },
+      {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      }
+    );
 
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({
-      error: 'Failed to process document',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Failed to process document',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      {
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      }
+    );
   }
+}
+
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    }
+  });
 }
