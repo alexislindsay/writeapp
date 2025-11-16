@@ -80,16 +80,19 @@ export default function UploadPage() {
 
             <div>
               <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-1">
-                Document (PDF or DOCX)
+                Document (TXT, MD, or DOCX)
               </label>
               <input
                 type="file"
                 name="file"
                 id="file"
-                accept=".pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
+                accept=".txt,.md,.docx,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Supported formats: Plain text (.txt), Markdown (.md), or Word (.docx)
+              </p>
             </div>
 
             <button

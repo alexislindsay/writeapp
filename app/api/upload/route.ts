@@ -1,17 +1,6 @@
 import { NextResponse } from 'next/server';
 import path from 'path';
 
-// Dynamic imports for document parsers
-const getPdfParser = async () => {
-  const pdfParse = await import('pdf-parse');
-  return pdfParse.default;
-};
-
-const getMammoth = async () => {
-  const mammoth = await import('mammoth');
-  return mammoth;
-};
-
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -23,8 +12,12 @@ export async function POST(request: Request) {
     }
 
     const ext = path.extname(file.name).toLowerCase();
-    if (!['.pdf', '.doc', '.docx'].includes(ext)) {
-      return NextResponse.json({ error: 'Invalid file type. Please upload a PDF or Word document.' }, { status: 400 });
+    const allowedTypes = ['.txt', '.md', '.docx'];
+
+    if (!allowedTypes.includes(ext)) {
+      return NextResponse.json({
+        error: `Invalid file type. Please upload one of: ${allowedTypes.join(', ')}`
+      }, { status: 400 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -33,18 +26,14 @@ export async function POST(request: Request) {
     let extractedText = '';
 
     // Extract text based on file type
-    if (ext === '.pdf') {
-      const pdfParse = await getPdfParser();
-      const data = await pdfParse(buffer);
-      extractedText = data.text;
+    if (ext === '.txt' || ext === '.md') {
+      // Plain text files - just decode
+      extractedText = buffer.toString('utf-8');
     } else if (ext === '.docx') {
-      const mammoth = await getMammoth();
+      // Use mammoth for DOCX files
+      const mammoth = await import('mammoth');
       const result = await mammoth.extractRawText({ buffer });
       extractedText = result.value;
-    } else if (ext === '.doc') {
-      return NextResponse.json({
-        error: 'Legacy .doc files are not supported. Please save as .docx or PDF.'
-      }, { status: 400 });
     }
 
     if (!extractedText || extractedText.trim().length === 0) {
