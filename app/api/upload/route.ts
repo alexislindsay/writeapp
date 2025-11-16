@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import path from 'path';
+import mammoth from 'mammoth';
 
 // Force Node.js runtime for this API route
 export const runtime = 'nodejs';
@@ -45,7 +46,6 @@ export async function POST(request: Request) {
         .join('');
     } else if (ext === '.docx') {
       // Use mammoth to convert DOCX to HTML with embedded images
-      const mammoth = await import('mammoth');
       const result = await mammoth.convertToHtml(
         { buffer },
         {
