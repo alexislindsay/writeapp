@@ -25,6 +25,7 @@ import Link from 'next/link';
 interface Article {
   title: string;
   content: string;
+  contentType?: 'html' | 'pdf';
   filename: string;
   createdAt: string;
 }
@@ -37,9 +38,14 @@ export default function HomePage() {
     setArticles(savedArticles);
   }, []);
 
-  const getPreview = (content: string, length: number = 200) => {
-    const preview = content.slice(0, length);
-    return preview.length < content.length ? preview + '...' : preview;
+  const getPreview = (content: string, contentType: string = 'html', length: number = 200) => {
+    if (contentType === 'pdf') {
+      return 'PDF Document - Click to view';
+    }
+    // Strip HTML tags for preview
+    const textOnly = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const preview = textOnly.slice(0, length);
+    return preview.length < textOnly.length ? preview + '...' : preview;
   };
 
   return (
@@ -95,7 +101,7 @@ export default function HomePage() {
                   })}
                 </p>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  {getPreview(article.content)}
+                  {getPreview(article.content, article.contentType)}
                 </p>
                 <button
                   onClick={() => {
@@ -136,13 +142,15 @@ export default function HomePage() {
                       })}
                     </p>
                     <div className="prose prose-lg max-w-none">
-                      {article.content.split('\n\n').map((paragraph, pIdx) => (
-                        paragraph.trim() && (
-                          <p key={pIdx} className="mb-4 text-gray-700 leading-relaxed">
-                            {paragraph}
-                          </p>
-                        )
-                      ))}
+                      {article.contentType === 'pdf' ? (
+                        <iframe
+                          src={`data:application/pdf;base64,${article.content}`}
+                          className="w-full h-[800px] border-0"
+                          title={article.title}
+                        />
+                      ) : (
+                        <div dangerouslySetInnerHTML={{ __html: article.content }} />
+                      )}
                     </div>
                   </div>
                 </div>

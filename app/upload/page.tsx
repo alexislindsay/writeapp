@@ -5,6 +5,7 @@ import Link from 'next/link';
 interface Article {
   title: string;
   content: string;
+  contentType: 'html' | 'pdf';
   filename: string;
   createdAt: string;
 }
@@ -29,6 +30,7 @@ export default function UploadPage() {
         const newArticle: Article = {
           title: data.title,
           content: data.content,
+          contentType: data.contentType || 'html',
           filename: data.filename,
           createdAt: new Date().toISOString()
         };
@@ -80,16 +82,19 @@ export default function UploadPage() {
 
             <div>
               <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-1">
-                Document (PDF or DOCX)
+                Document (TXT, MD, DOCX, or PDF)
               </label>
               <input
                 type="file"
                 name="file"
                 id="file"
-                accept=".pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
+                accept=".txt,.md,.docx,.pdf,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Supported formats: Text, Markdown, Word, or PDF (preserves images and formatting)
+              </p>
             </div>
 
             <button
@@ -118,9 +123,15 @@ export default function UploadPage() {
             </div>
 
             <div className="prose prose-lg max-w-none">
-              {article.content.split('\n\n').map((paragraph, idx) => (
-                paragraph.trim() && <p key={idx} className="mb-4 text-gray-700 leading-relaxed">{paragraph}</p>
-              ))}
+              {article.contentType === 'pdf' ? (
+                <iframe
+                  src={`data:application/pdf;base64,${article.content}`}
+                  className="w-full h-[800px] border-0"
+                  title={article.title}
+                />
+              ) : (
+                <div dangerouslySetInnerHTML={{ __html: article.content }} />
+              )}
             </div>
 
             <div className="mt-8 pt-6 border-t border-gray-200">
