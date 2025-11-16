@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     }
 
     const ext = path.extname(file.name).toLowerCase();
-    const allowedTypes = ['.txt', '.md', '.docx'];
+    const allowedTypes = ['.txt', '.md', '.docx', '.pdf'];
 
     if (!allowedTypes.includes(ext)) {
       return NextResponse.json({
@@ -23,30 +23,59 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    let extractedText = '';
+    let contentHtml = '';
+    let contentType = 'html';
 
-    // Extract text based on file type
-    if (ext === '.txt' || ext === '.md') {
-      // Plain text files - just decode
-      extractedText = buffer.toString('utf-8');
+    // Convert documents to HTML (preserves images and formatting)
+    if (ext === '.txt') {
+      // Plain text - wrap in pre tag to preserve formatting
+      const text = buffer.toString('utf-8');
+      contentHtml = `<pre style="white-space: pre-wrap; font-family: inherit;">${text}</pre>`;
+    } else if (ext === '.md') {
+      // Markdown - convert to HTML (basic conversion)
+      const text = buffer.toString('utf-8');
+      // Simple markdown to HTML - you could use a library like marked for more features
+      contentHtml = text
+        .split('\n\n')
+        .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`)
+        .join('');
     } else if (ext === '.docx') {
-      // Use mammoth for DOCX files
+      // Use mammoth to convert DOCX to HTML with embedded images
       const mammoth = await import('mammoth');
-      const result = await mammoth.extractRawText({ buffer });
-      extractedText = result.value;
+      const result = await mammoth.convertToHtml(
+        { buffer },
+        {
+          convertImage: mammoth.images.imgElement(async (image) => {
+            // Convert images to base64 data URLs
+            const imageBuffer = await image.read();
+            const base64 = imageBuffer.toString('base64');
+            const contentType = image.contentType || 'image/png';
+            return {
+              src: `data:${contentType};base64,${base64}`
+            };
+          })
+        }
+      );
+      contentHtml = result.value;
+    } else if (ext === '.pdf') {
+      // For PDFs, return the file as base64 to render client-side
+      const base64 = buffer.toString('base64');
+      contentType = 'pdf';
+      contentHtml = base64; // Client will handle PDF rendering
     }
 
-    if (!extractedText || extractedText.trim().length === 0) {
+    if (!contentHtml || contentHtml.trim().length === 0) {
       return NextResponse.json({
-        error: 'Could not extract text from document'
+        error: 'Could not process document'
       }, { status: 400 });
     }
 
-    // Return the extracted content
+    // Return the converted content
     return NextResponse.json({
       success: true,
       title: title || file.name.replace(/\.[^/.]+$/, ''),
-      content: extractedText.trim(),
+      content: contentHtml,
+      contentType,
       filename: file.name
     });
 
