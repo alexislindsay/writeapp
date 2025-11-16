@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 
 export async function POST(request: Request) {
   const formData = await request.formData();
@@ -8,14 +6,25 @@ export async function POST(request: Request) {
   if (!file) {
     return NextResponse.json({ error: 'No file' }, { status: 400 });
   }
-  const ext = path.extname(file.name).toLowerCase();
-  if (!['.pdf', '.doc', '.docx'].includes(ext)) {
-    return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
+
+  // Validate file extension
+  const fileName = file.name.toLowerCase();
+  const validExtensions = ['.pdf', '.doc', '.docx'];
+  const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+
+  if (!hasValidExtension) {
+    return NextResponse.json({ error: 'Invalid file type. Please upload PDF, DOC, or DOCX files.' }, { status: 400 });
   }
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const fileName = `${Date.now()}-${file.name}`;
-  const filePath = path.join(process.cwd(), 'public', 'uploads', fileName);
-  await fs.writeFile(filePath, buffer);
-  return NextResponse.json({ url: `/uploads/${fileName}` });
+
+  // Note: File storage is not implemented for serverless environment
+  // In production, you would integrate with cloud storage like:
+  // - Vercel Blob Storage
+  // - AWS S3
+  // - Cloudflare R2
+  // - Google Cloud Storage
+
+  return NextResponse.json({
+    error: 'File upload not configured. Please set up cloud storage integration.',
+    message: 'This feature requires cloud storage configuration for serverless deployment.'
+  }, { status: 501 });
 }
