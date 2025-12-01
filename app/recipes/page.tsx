@@ -23,6 +23,8 @@ export default function RecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [savingRecipe, setSavingRecipe] = useState<number | null>(null);
+  const [saveMessage, setSaveMessage] = useState('');
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,12 +63,45 @@ export default function RecipesPage() {
     });
   };
 
+  const saveRecipe = async (recipe: Recipe, recipeIndex: number) => {
+    setSavingRecipe(recipeIndex);
+    setSaveMessage('');
+
+    try {
+      const response = await fetch('/api/recipes/saved', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(recipe),
+      });
+
+      if (!response.ok) throw new Error('Failed to save recipe');
+
+      setSaveMessage('Recipe saved!');
+      setTimeout(() => setSaveMessage(''), 3000);
+    } catch (err) {
+      setSaveMessage('Failed to save recipe');
+      setTimeout(() => setSaveMessage(''), 3000);
+    } finally {
+      setSavingRecipe(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Finder</h1>
-          <p className="text-gray-600">Skip the blog posts, get straight to the recipe</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Finder</h1>
+              <p className="text-gray-600">Skip the blog posts, get straight to the recipe</p>
+            </div>
+            <Link
+              href="/recipes/saved"
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              My Saved Recipes
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -99,6 +134,17 @@ export default function RecipesPage() {
           </div>
         )}
 
+        {/* Save Message */}
+        {saveMessage && (
+          <div className={`border px-4 py-3 rounded-lg mb-8 ${
+            saveMessage.includes('saved!')
+              ? 'bg-green-50 border-green-200 text-green-700'
+              : 'bg-red-50 border-red-200 text-red-700'
+          }`}>
+            {saveMessage}
+          </div>
+        )}
+
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
@@ -116,16 +162,34 @@ export default function RecipesPage() {
             {recipes.map((recipe, recipeIdx) => (
               <div key={recipeIdx} className="bg-white rounded-lg shadow-md p-6">
                 {/* Recipe Header */}
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{recipe.title}</h3>
-                  <a
-                    href={recipe.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline text-sm"
+                <div className="mb-4 flex justify-between items-start">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{recipe.title}</h3>
+                    <a
+                      href={recipe.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline text-sm"
+                    >
+                      {recipe.source} →
+                    </a>
+                  </div>
+                  <button
+                    onClick={() => saveRecipe(recipe, recipeIdx)}
+                    disabled={savingRecipe === recipeIdx}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 flex items-center gap-2"
                   >
-                    {recipe.source} →
-                  </a>
+                    {savingRecipe === recipeIdx ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        💾 Save Recipe
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 {/* Recipe Meta */}
