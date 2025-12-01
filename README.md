@@ -1,30 +1,77 @@
-# Writeapp OpenAI Data API
+# Recipe Finder
 
-This project includes a small Python utility and web API for turning an OpenAI data export into an HTTP service. The intent is to host the API on platforms such as Railway.
+A web app that searches for recipes and extracts them using open-source LLMs - no more scrolling through endless blog posts to find the actual recipe!
 
-## Chunking OpenAI Data
+## Features
 
-The `chunk_openai_data.py` script processes the `conversations.json` file from an OpenAI user data download. The conversations are split into smaller chunks for easier consumption by a chatbot or other clients.
+- 🔍 **Web Search**: Searches popular recipe sites for your query
+- 🤖 **LLM Extraction**: Uses open-source LLMs to extract structured recipe data
+- ✅ **Ingredient Checklist**: Check off ingredients you have at home
+- 🔗 **Source Links**: Direct links to original recipes
+- 📱 **Clean UI**: Simple, fast interface built with Next.js
 
+## How It Works
+
+1. Enter what you want to cook (e.g., "egg nog", "chocolate chip cookies")
+2. App searches the web and finds recipe pages
+3. LLM extracts the recipe content (ingredients, instructions, times)
+4. You get 3 clean recipes with checkable ingredient lists
+
+## Setup
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- An open-source LLM (choose one):
+  - **Ollama** (local, free) - recommended for getting started
+  - **Together AI** (hosted, pay-as-you-go) - easier deployment
+
+### Option 1: Using Ollama (Local)
+
+1. Install Ollama from [ollama.ai](https://ollama.ai)
+2. Pull a model: `ollama pull llama3`
+3. Copy `.env.example` to `.env.local`
+4. Set `LLM_PROVIDER=ollama` in `.env.local`
+
+### Option 2: Using Together AI (Hosted)
+
+1. Get API key from [api.together.xyz](https://api.together.xyz)
+2. Copy `.env.example` to `.env.local`
+3. Set `LLM_PROVIDER=together` and add your API key
+
+### Running the App
+
+```bash
+npm install
+npm run dev
 ```
-python3 chunk_openai_data.py /path/to/conversations.json --output chunks.json --size 2000
-```
 
-`--size` controls the approximate maximum number of characters per chunk.
+Visit [http://localhost:3000](http://localhost:3000)
 
-## Running the API
+## Configuration
 
-The provided `app.py` uses Flask. It loads the generated `chunks.json` file and exposes two endpoints:
+See `.env.example` for all configuration options:
 
-- `/chunks` returns the entire list of chunks.
-- `/chunk/<index>` returns a specific chunk by index.
+- `LLM_PROVIDER`: Choose 'ollama' or 'together'
+- `OLLAMA_URL`: Ollama server URL (default: http://localhost:11434)
+- `OLLAMA_MODEL`: Model to use (default: llama3)
+- `TOGETHER_API_KEY`: Your Together AI API key
 
-Use environment variable `DATA_FILE` to point to a custom chunk file and `PORT` to select the port (useful for Railway).
+## Tech Stack
 
-```
-export DATA_FILE=chunks.json
-export PORT=8000
-python3 app.py
-```
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **LLM**: Ollama (Llama 3) or Together AI
+- **Search**: DuckDuckGo web search
+- **Deployment**: Vercel-ready
 
-The API will be available at `http://localhost:8000/`.
+## Future Ideas
+
+- Save favorite recipes
+- Generate shopping lists
+- Recipe scaling (adjust servings)
+- Dietary filters (vegan, gluten-free, etc.)
+- Recipe rating and notes
+
+## License
+
+MIT
