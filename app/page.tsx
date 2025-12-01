@@ -1,148 +1,87 @@
 'use client';
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-interface Article {
-  title: string;
-  content: string;
-  contentType?: 'html' | 'pdf';
-  filename: string;
-  createdAt: string;
-}
-
 export default function HomePage() {
-  const [articles, setArticles] = useState<Article[]>([]);
-
-  useEffect(() => {
-    const savedArticles = JSON.parse(localStorage.getItem('articles') || '[]');
-    setArticles(savedArticles);
-  }, []);
-
-  const getPreview = (content: string, contentType: string = 'html', length: number = 200) => {
-    if (contentType === 'pdf') {
-      return 'PDF Document - Click to view';
-    }
-    // Strip HTML tags for preview
-    const textOnly = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    const preview = textOnly.slice(0, length);
-    return preview.length < textOnly.length ? preview + '...' : preview;
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Butterfiles</h1>
-          <p className="text-gray-600">A portfolio of my writing</p>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <h1 className="text-5xl font-bold text-gray-900 mb-2">Health & Wellness Hub</h1>
+          <p className="text-gray-600 text-lg">Track your nutrition, workouts, and discover new recipes</p>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {articles.length === 0 ? 'No articles yet' : `${articles.length} Article${articles.length !== 1 ? 's' : ''}`}
-          </h2>
-          <Link
-            href="/upload"
-            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Upload New Writing
+      <main className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid md:grid-cols-3 gap-8">
+          {/* Nutrition Tracker Card */}
+          <Link href="/nutrition" className="group">
+            <div className="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-blue-500">
+              <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">🍎</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">Track Food</h2>
+              <p className="text-gray-600 mb-4">
+                Log your meals, track calories, and monitor macros (protein, carbs, fats)
+              </p>
+              <div className="text-blue-600 font-semibold group-hover:translate-x-2 transition-transform inline-block">
+                Start tracking →
+              </div>
+            </div>
+          </Link>
+
+          {/* Workout Tracker Card */}
+          <Link href="/workouts" className="group">
+            <div className="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-green-500">
+              <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">💪</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">Log Workout</h2>
+              <p className="text-gray-600 mb-4">
+                Record your exercises, track duration and intensity, view progress over time
+              </p>
+              <div className="text-green-600 font-semibold group-hover:translate-x-2 transition-transform inline-block">
+                Log exercise →
+              </div>
+            </div>
+          </Link>
+
+          {/* Recipe Finder Card */}
+          <Link href="/recipes" className="group">
+            <div className="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-orange-500">
+              <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">🍳</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">Find Recipes</h2>
+              <p className="text-gray-600 mb-4">
+                Search for recipes, skip the blog posts, save your favorites with ingredients
+              </p>
+              <div className="text-orange-600 font-semibold group-hover:translate-x-2 transition-transform inline-block">
+                Search recipes →
+              </div>
+            </div>
           </Link>
         </div>
 
-        {articles.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">Welcome to Butterfiles</h3>
-            <p className="text-gray-600 mb-6">
-              Upload your first document to start building your writing portfolio
-            </p>
-            <Link
-              href="/upload"
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Get Started
-            </Link>
+        {/* Quick Stats Section */}
+        <div className="mt-16 bg-white rounded-xl shadow-lg p-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">Why Track Your Health?</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-4xl mb-2">📊</div>
+              <h4 className="font-semibold text-gray-900 mb-1">Monitor Progress</h4>
+              <p className="text-gray-600 text-sm">See your health journey over time</p>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl mb-2">🎯</div>
+              <h4 className="font-semibold text-gray-900 mb-1">Reach Goals</h4>
+              <p className="text-gray-600 text-sm">Stay on track with your fitness targets</p>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl mb-2">🌟</div>
+              <h4 className="font-semibold text-gray-900 mb-1">Build Habits</h4>
+              <p className="text-gray-600 text-sm">Create lasting healthy routines</p>
+            </div>
           </div>
-        ) : (
-          <div className="grid gap-6">
-            {articles.map((article, idx) => (
-              <article
-                key={idx}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-              >
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {article.title}
-                </h3>
-                <p className="text-sm text-gray-500 mb-4">
-                  {new Date(article.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  {getPreview(article.content, article.contentType)}
-                </p>
-                <button
-                  onClick={() => {
-                    const modal = document.getElementById(`modal-${idx}`);
-                    if (modal) modal.classList.remove('hidden');
-                  }}
-                  className="text-blue-600 hover:underline font-medium"
-                >
-                  Read full article →
-                </button>
-
-                {/* Modal for full article */}
-                <div
-                  id={`modal-${idx}`}
-                  className="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-                  onClick={(e) => {
-                    if (e.target === e.currentTarget) {
-                      e.currentTarget.classList.add('hidden');
-                    }
-                  }}
-                >
-                  <div className="bg-white rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto p-8 relative">
-                    <button
-                      onClick={() => {
-                        const modal = document.getElementById(`modal-${idx}`);
-                        if (modal) modal.classList.add('hidden');
-                      }}
-                      className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
-                    >
-                      ×
-                    </button>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">{article.title}</h2>
-                    <p className="text-sm text-gray-500 mb-6">
-                      {new Date(article.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
-                    <div className="prose prose-lg max-w-none">
-                      {article.contentType === 'pdf' ? (
-                        <iframe
-                          src={`data:application/pdf;base64,${article.content}`}
-                          className="w-full h-[800px] border-0"
-                          title={article.title}
-                        />
-                      ) : (
-                        <div dangerouslySetInnerHTML={{ __html: article.content }} />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+        </div>
       </main>
 
       <footer className="mt-16 py-8 border-t bg-white">
-        <div className="max-w-6xl mx-auto px-4 text-center text-gray-600">
-          <p>Butterfiles - A simple writing portfolio</p>
+        <div className="max-w-7xl mx-auto px-4 text-center text-gray-600">
+          <p>Health & Wellness Hub - Your complete health tracking solution</p>
         </div>
       </footer>
     </div>
