@@ -92,6 +92,9 @@ export default function RecipesPage() {
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="flex justify-between items-center">
             <div>
+              <Link href="/" className="text-blue-600 hover:underline text-sm mb-2 block">
+                ← Back to Home
+              </Link>
               <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Finder</h1>
               <p className="text-gray-600">Skip the blog posts, get straight to the recipe</p>
             </div>
