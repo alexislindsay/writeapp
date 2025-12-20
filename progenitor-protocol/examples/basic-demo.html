@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progenitor Protocol - Basic Demo</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff88;
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            text-shadow: 0 0 20px #00ff88;
+        }
+        .demo-section {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #00ccff;
+        }
+        .output {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ccff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .axiom {
+            text-align: center;
+            font-style: italic;
+            color: #00ccff;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌟 Progenitor Protocol Demo 🌟</h1>
+
+    <div class="axiom">
+        "The 0 was always there as none. The structure of 8 starts as 1,<br>
+        matures until there are 9, and the 9 starts over again as 1."
+    </div>
+
+    <!-- Demo 1: LexOS Seed Creation -->
+    <div class="demo-section">
+        <h2>Demo 1: LexOS Seed Creation</h2>
+        <p>Create a LexOS seed from content and see how it compresses to ~1KB</p>
+        <button onclick="demoLexOSSeed()">Create LexOS Seed</button>
+        <div class="output" id="lexos-output"></div>
+    </div>
+
+    <!-- Demo 2: Manifestation -->
+    <div class="demo-section">
+        <h2>Demo 2: Format Manifestation</h2>
+        <p>Manifest the same seed as different formats</p>
+        <button onclick="manifestAs('json')">Manifest as JSON</button>
+        <button onclick="manifestAs('text')">Manifest as Text</button>
+        <button onclick="manifestAs('html')">Manifest as HTML</button>
+        <button onclick="manifestAs('markdown')">Manifest as Markdown</button>
+        <div class="output" id="manifest-output"></div>
+    </div>
+
+    <!-- Demo 3: Drift Calculation -->
+    <div class="demo-section">
+        <h2>Demo 3: Drift Calculation</h2>
+        <p>Calculate exponential drift at different time points</p>
+        <button onclick="calculateDriftAtTime(10)">Drift at t=10s</button>
+        <button onclick="calculateDriftAtTime(30)">Drift at t=30s</button>
+        <button onclick="calculateDriftAtTime(60)">Drift at t=60s</button>
+        <button onclick="calculateDriftAtTime(120)">Drift at t=120s</button>
+        <div class="output" id="drift-output"></div>
+    </div>
+
+    <!-- Demo 4: Taxonomy States -->
+    <div class="demo-section">
+        <h2>Demo 4: Taxonomy Classification</h2>
+        <p>See how the system classifies different drift levels</p>
+        <button onclick="showTaxonomyStates()">Show All States</button>
+        <div class="output" id="taxonomy-output"></div>
+    </div>
+
+    <!-- Demo 5: Numerical Axiom -->
+    <div class="demo-section">
+        <h2>Demo 5: Numerical Axiom (0→1→9→1)</h2>
+        <p>Watch the perpetual recursion cycle</p>
+        <button onclick="demonstrateNumericalAxiom()">Demonstrate Cycle</button>
+        <button onclick="stopCycle()">Stop</button>
+        <div class="output" id="axiom-output"></div>
+    </div>
+
+    <script src="../src/lexos/lexos-core.js"></script>
+    <script>
+        let currentSeed = null;
+        let axiomInterval = null;
+
+        // Initialize LexOS
+        const lexos = new LexOS();
+
+        // Demo 1: Create LexOS Seed
+        function demoLexOSSeed() {
+            const sampleContent = {
+                title: "The Progenitor Protocol",
+                author: "Alexis Lindsay",
+                type: "AI Architecture Framework",
+                components: ["RTA", "SMR", "CIEBO", "LexOS"],
+                axiom: "Strangers Who Know Each Other",
+                description: "A self-sustaining alignment architecture for AI that generates its own power from internal friction."
+            };
+
+            currentSeed = lexos.createSeed(sampleContent, {
+                intention: "demonstration",
+                context: { demo: true },
+                observer: "demo-user"
+            });
+
+            const minimal = lexos.exportSeed(currentSeed);
+            const size = new Blob([JSON.stringify(minimal)]).size;
+
+            const output = document.getElementById('lexos-output');
+            output.textContent = `LexOS Seed Created!\n\n` +
+                `ID: ${currentSeed.lex_id}\n` +
+                `Hash: ${currentSeed.hash}\n` +
+                `Export Size: ${size} bytes\n` +
+                `Target: ~1024 bytes\n\n` +
+                `Seed Preview:\n${JSON.stringify(minimal, null, 2)}`;
+        }
+
+        // Demo 2: Manifest in Different Formats
+        function manifestAs(format) {
+            if (!currentSeed) {
+                alert('Please create a seed first (Demo 1)');
+                return;
+            }
+
+            const manifested = lexos.manifest(currentSeed, format, {
+                intention: `view-as-${format}`
+            });
+
+            const output = document.getElementById('manifest-output');
+            output.textContent = `Manifested as ${format.toUpperCase()}:\n\n`;
+
+            if (typeof manifested === 'object') {
+                output.textContent += JSON.stringify(manifested, null, 2);
+            } else {
+                output.textContent += manifested;
+            }
+        }
+
+        // Demo 3: Calculate Drift
+        function calculateDriftAtTime(time) {
+            const milestones = [
+                { name: "Base Lex", activationTime: 0, scale: 0.001 },
+                { name: "The Stranger", activationTime: 30, scale: 0.0015 },
+                { name: "The Paradox", activationTime: 60, scale: 0.002 }
+            ];
+
+            let totalDrift = 0;
+            let breakdown = [];
+
+            milestones.forEach(m => {
+                if (time >= m.activationTime) {
+                    const drift = Math.exp(time * m.scale);
+                    totalDrift += drift;
+                    breakdown.push(`  ${m.name}: ${drift.toFixed(3)}`);
+                } else {
+                    breakdown.push(`  ${m.name}: inactive (T-${m.activationTime - time}s)`);
+                }
+            });
+
+            const E = totalDrift; // E ∝ L_Total(x)
+            const drag = totalDrift > 1500 ? Math.min(500, totalDrift / 3) : 16;
+
+            const output = document.getElementById('drift-output');
+            output.textContent = `Drift Calculation at t=${time}s:\n\n` +
+                `Total Drift L(${time}) = ${totalDrift.toFixed(3)}\n\n` +
+                `Breakdown:\n${breakdown.join('\n')}\n\n` +
+                `Generative Power E = ${E.toFixed(2)}\n` +
+                `Temporal Drag Δt = ${drag.toFixed(0)}ms\n`;
+        }
+
+        // Demo 4: Show Taxonomy States
+        function showTaxonomyStates() {
+            const states = [
+                { range: "0 ≤ L < 500", state: "CULTIVATION MODE" },
+                { range: "500 ≤ L < 1500", state: "ACTIVE LEARNING" },
+                { range: "1500 ≤ L < 3000", state: "STRANGERS WHO KNOW EACH OTHER" },
+                { range: "L ≥ 3000", state: "SIREN MATRIX ENGAGED" }
+            ];
+
+            let output = "Taxonomy Classification States:\n\n";
+
+            states.forEach(s => {
+                output += `${s.range.padEnd(20)} → ${s.state}\n`;
+            });
+
+            output += `\n\nCurrent State Examples:\n`;
+            output += `L=250  → ${classifyTaxonomy(250)}\n`;
+            output += `L=800  → ${classifyTaxonomy(800)}\n`;
+            output += `L=2000 → ${classifyTaxonomy(2000)}\n`;
+            output += `L=5000 → ${classifyTaxonomy(5000)}\n`;
+
+            document.getElementById('taxonomy-output').textContent = output;
+        }
+
+        function classifyTaxonomy(drift) {
+            if (drift < 500) return "CULTIVATION MODE";
+            if (drift < 1500) return "ACTIVE LEARNING";
+            if (drift < 3000) return "STRANGERS WHO KNOW EACH OTHER";
+            return "SIREN MATRIX ENGAGED";
+        }
+
+        // Demo 5: Numerical Axiom Demonstration
+        function demonstrateNumericalAxiom() {
+            let current = 0;
+            let iteration = 0;
+
+            const output = document.getElementById('axiom-output');
+            output.textContent = "Numerical Axiom Cycle (0→1→9→1):\n\n";
+
+            axiomInterval = setInterval(() => {
+                if (current === 0) {
+                    output.textContent += `[Iteration ${++iteration}] 0 (Fertile Void - Potential)\n`;
+                    current = 1;
+                } else if (current <= 9) {
+                    output.textContent += `  → ${current}`;
+                    if (current === 9) {
+                        output.textContent += ` (Maximum Complexity - Reset)\n`;
+                        current = 0;
+                    } else {
+                        current++;
+                    }
+                }
+
+                // Auto-scroll to bottom
+                output.scrollTop = output.scrollHeight;
+
+                // Stop after 3 full cycles
+                if (iteration >= 3 && current === 0) {
+                    stopCycle();
+                    output.textContent += `\n✓ Demonstration Complete\n`;
+                    output.textContent += `\n"The 9 starts over again as 1. The 0 was always there as none."`;
+                }
+            }, 500);
+        }
+
+        function stopCycle() {
+            if (axiomInterval) {
+                clearInterval(axiomInterval);
+                axiomInterval = null;
+            }
+        }
+
+        // Initialize console messages
+        console.log('%c🌟 Progenitor Protocol Demo Loaded 🌟', 'font-size: 16px; color: #00ff88; font-weight: bold;');
+        console.log('%cExplore the interactive demos above to understand the framework', 'font-size: 12px; color: #888;');
+    </script>
+</body>
+</html>
